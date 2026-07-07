@@ -35,4 +35,34 @@ class ParserTest < Minitest::Test
     assert_equal "", UtahLegislature::Parser.body_text(nil)
     assert_equal "", UtahLegislature::Parser.body_text("")
   end
+
+  REDLINE_XML = <<~XML
+    <?xml version="1.0" encoding="UTF-16"?>
+    <leg xml:space="preserve"><bdy><bsec><section>
+      <secline lineno="10">Section 1. Section 10-1-1 is amended to read:</secline>
+      <subsection lineno="12" level="1"><display>(1)</display> "Office" means the <amend ea="erase" style="2">old office</amend><amend ea="amend" style="1">Office of Policy Research</amend>.</subsection>
+    </section></bsec></bdy></leg>
+  XML
+
+  def test_redline_defaults_to_html_with_line_numbers_and_amendments
+    html = UtahLegislature::Parser.redline(REDLINE_XML)
+
+    assert html.start_with?("<div"), "default format should be HTML"
+    assert_includes html, %(<span class="ul-linenum">10</span>)
+    assert_includes html, "<del>old office</del>"
+    assert_includes html, "<ins>Office of Policy Research</ins>"
+  end
+
+  def test_redline_markdown_format
+    md = UtahLegislature::Parser.redline(REDLINE_XML, format: :markdown)
+
+    assert_includes md, "~~old office~~"
+    assert_includes md, "<ins>Office of Policy Research</ins>"
+    assert_match(/^\s*10\s/, md) # line number prefix
+  end
+
+  def test_redline_blank_input
+    assert_equal "", UtahLegislature::Parser.redline(nil)
+    assert_equal "", UtahLegislature::Parser.redline("")
+  end
 end
