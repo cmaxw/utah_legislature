@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-16"?>
+<leg xml:space="preserve" billnum="HB9999" sess="2026GS">
+  <info><lt>Sample Bill Title</lt></info>
+  <bdy>
+    <bsec>Section 1. Section 10-1-1 is amended to read: The state shall establish a research office to study public policy.</bsec>
+    <bsec>Section 2. This act takes effect on May 1, 2026.</bsec>
+  </bdy>
+  <foot>Legislative footer text.</foot>
+</leg>

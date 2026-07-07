@@ -1,0 +1,5 @@
+# frozen_string_literal: true
+
+module UtahLegislature
+  VERSION = "0.1.0"
+end
