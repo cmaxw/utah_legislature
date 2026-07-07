@@ -74,7 +74,23 @@ class ClientTest < Minitest::Test
     ])
     client = UtahLegislature::Client.new(api_key: "k", session: "2026GS", connection: conn)
 
-    assert_instance_of Time, client.bill_list.first.updated_at
+    updated = client.bill_list.first.updated_at
+    assert_instance_of Time, updated
+    assert_predicate updated, :utc?
+  end
+
+  def test_zoneless_timestamps_parse_as_utc_regardless_of_host_tz
+    conn = FakeConnection.new([
+      ["/billlist/", json_response(JSON.generate([
+        { "number" => "HB0001", "updatetime" => "2026-01-19 11:07:38.010" }
+      ]))]
+    ])
+    client = UtahLegislature::Client.new(api_key: "k", session: "2026GS", connection: conn)
+
+    updated = client.bill_list.first.updated_at
+    # A zone-less API timestamp must be interpreted literally as UTC, not shifted
+    # by the host's timezone offset.
+    assert_equal Time.utc(2026, 1, 19, 11, 7, 38, 10_000), updated
   end
 
   private

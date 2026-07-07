@@ -195,6 +195,9 @@ module UtahLegislature
 
     # The API mixes date formats: "1/31/2026" (m/d/Y) for lastActionDate, and
     # ISO timestamps like "2026-01-19 11:07:38.010" for history/updatetime.
+    # The timestamps carry no timezone, so we interpret them as UTC — otherwise
+    # parsing would depend on the host's timezone and produce different values
+    # on a dev box vs. a UTC server.
     def parse_date(value)
       str = value.to_s.strip
       return nil if str.empty?
@@ -202,7 +205,7 @@ module UtahLegislature
       if str.match?(%r{\A\d{1,2}/\d{1,2}/\d{4}\z})
         Date.strptime(str, "%m/%d/%Y")
       else
-        Time.parse(str)
+        DateTime.parse(str).to_time.utc
       end
     rescue ArgumentError, Date::Error
       UtahLegislature.logger.warn("[UtahLegislature] Unparseable date: #{value.inspect}")
